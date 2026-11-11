@@ -120,7 +120,7 @@ async function viewInsta() {
   renderInstaTab();
 }
 
-/* اتصال: کاربر یک توکن بلندمدت از داشبورد Meta می‌سازد و اینجا می‌گذارد. همین راهنما در docs/instagram-connect.md هم هست؛
+/* اتصال: کاربر یک توکن بلندمدت از داشبورد Meta می‌سازد و اینجا می‌گذارد. همین راهنما در docs/instagram-connect.md (و نسخه‌ی انگلیسی‌اش docs/instagram-connect.en.md) هم هست؛
    هر تغییری این‌جا، آن‌جا هم. هر قدم یک کارت با تیک «انجام دادم» است (localStorage)؛ قدم انجام‌شده جمع می‌شود. */
 const IGC_KEY = 'ig-connect-done';
 const igcDone = () => { try { return new Set(JSON.parse(localStorage.getItem(IGC_KEY) || '[]')); } catch { return new Set(); } };

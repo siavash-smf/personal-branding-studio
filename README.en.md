@@ -28,7 +28,7 @@ The tab names below are followed by the Persian label you will see in the studio
 | **Video Editing** («تدوین ویدیو») | Cuts silences and fumbles, adds word-by-word Persian captions, graphics, a cover and a caption (Mac only for now) |
 | **Story** («استوری») | Text → a 1080×1920 image in your brand colours and logo |
 | **Carousel & Post** («کاروسل و پست») | Multi-slide posts, made by hand or with Claude |
-| **Instagram Analytics** («تحلیل اینستاگرام») | Stats for your posts, reels, stories and audience, plus an AI analyst (optional) |
+| **Instagram Analytics** («تحلیل اینستاگرام») | Stats for your posts, reels, stories and audience, plus an AI analyst (optional; [how to connect](docs/instagram-connect.en.md)) |
 | **Settings** («تنظیمات») | Your profile, the Claude model for each task, and your Gemini key |
 
 Publishing is manual: you download what the studio makes and post it on Instagram yourself.
@@ -127,7 +127,7 @@ To back up, copy `brand` and `data` somewhere safe.
 
 ## Customise the studio with Claude Code
 
-The studio is yours. You can change or add anything you like without waiting for a new version. The code is simple (Python with no dependencies, JavaScript with no framework), and Claude Code finds a guide to its structure in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) (written in Persian; Claude reads it either way).
+The studio is yours. You can change or add anything you like without waiting for a new version. The code is simple (Python with no dependencies, JavaScript with no framework), and Claude Code finds a guide to its structure in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) ([English version](docs/DEVELOPMENT.en.md)).
 
 1. Open Terminal (Mac) or PowerShell (Windows) and go into the studio folder:
    - Mac: `cd ~/content-studio`
