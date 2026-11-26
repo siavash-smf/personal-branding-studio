@@ -7,7 +7,15 @@
 const STW = 1080, STH = 1920;
 const ST_PAD = 86;                           // حاشیه‌ی چپ و راست متن
 const ST_SAFE = { top: 250, bottom: 250 };   // زیر نوار پروفایل (بالا) و نوار پیام (پایین) اینستاگرام
-const ST_FONT = 'Vazirmatn, "Apple Color Emoji", sans-serif';
+const ST_FONT_FA = 'Vazirmatn, "Apple Color Emoji", sans-serif';
+let ST_FONT = ST_FONT_FA;
+// حالت انگلیسی (کلید فا/EN، app/lang.js): پاراگراف چپ‌به‌راست، چینش از چپ و فونت تیترِ انگلیسی.
+// پیش از هر نقاشی صدا زده می‌شود: استوری با کلید هدر، کاروسل با زبان خود کاروسل. فارسی = همان رفتار قبلی.
+let ST_LTR = false;
+function stDir(lang) {
+  ST_LTR = lang === 'en' && !!window.LANG;
+  ST_FONT = ST_LTR ? LANG.stack('head') : ST_FONT_FA;
+}
 
 // پیش‌فرض: زمینه‌ی تخت به رنگ اصلی برند، متن سفید ضخیم راست‌چین از حدود ۲۵٪ ارتفاع،
 // خط خالی بین پاراگراف‌ها، تأکید به رنگ تأکیدی برند، لوگوی سفید وسطِ پایین با پهنای ۳۲٪.
@@ -47,6 +55,17 @@ const ST_PRESETS = [
     note: 'زمینه‌ی روشن، متن به رنگ برند، ماژیک' },
 ];
 // ** = تأکید
+const ST_DEMO_EN = {
+  mid: 'If you want to build your personal brand but have no idea where to start,\n\n'
+     + '**this week we\'ll walk through three common mistakes together.**',
+  short: 'Most people wait for **the perfect moment** instead of just starting.',
+  long: '**Three lessons from a year of making content**\n\n'
+      + 'One: consistency beats quality. A post that ships beats a perfect post that never does.\n\n'
+      + '**Two: speak your audience\'s language, not yours.**\n\n'
+      + 'Three: every reel gets one main idea.\n\n'
+      + '**Most important: take your ideas from the questions people keep asking you.**',
+};
+const stDemoSrc = k => (ST_LTR ? ST_DEMO_EN : ST_DEMO)[k];
 const ST_DEMO = {
   mid: 'اگه تو هم می‌خوای برند شخصی‌ات رو بسازی ولی نمی‌دونی از کجا شروع کنی،\n\n'
      + '**این هفته سه تا اشتباه رایج رو با هم مرور می‌کنیم.**',
@@ -176,11 +195,12 @@ const ST_PAIR = { '(': ')', '[': ']', '{': '}' }, ST_UNPAIR = { ')': '(', ']': '
 // سطح هر حرف در یک پاراگراف راست‌به‌چپ: ۱ = راست‌به‌چپ، ۲ = چپ‌به‌راست (انگلیسی و عدد)
 function stLevels(ln) {
   const cls = ln.map(c => stClass(c.ch)), idx = [];
+  const sos = ST_LTR ? 'L' : 'R', base = ST_LTR ? 0 : 1;   // جهت پاراگراف: فارسی راست‌به‌چپ، حالت انگلیسی چپ‌به‌راست
   cls.forEach((c, i) => { if (c !== 'BN') idx.push(i); });   // X9: نیم‌فاصله در محاسبه نیست، آخر سطح همسایه را می‌گیرد
   const t = idx.map(i => cls[i]), m = t.length;
   const strong = x => x === 'L' ? 'L' : x === 'R' || x === 'EN' || x === 'AN' ? 'R' : null;   // عدد در حکم R
-  for (let k = 0; k < m; k++) if (t[k] === 'NSM') t[k] = k ? t[k - 1] : 'R';                    // W1
-  let last = 'R';
+  for (let k = 0; k < m; k++) if (t[k] === 'NSM') t[k] = k ? t[k - 1] : sos;                    // W1
+  let last = sos;
   for (let k = 0; k < m; k++) {                                                                   // W2
     if (t[k] === 'L' || t[k] === 'R' || t[k] === 'AL') last = t[k];
     else if (t[k] === 'EN' && last === 'AL') t[k] = 'AN';
@@ -196,7 +216,7 @@ function stLevels(ln) {
     k = e - 1;
   }
   for (let k = 0; k < m; k++) if (t[k] === 'ES' || t[k] === 'ET' || t[k] === 'CS') t[k] = 'ON';  // W6
-  last = 'R';
+  last = sos;
   for (let k = 0; k < m; k++) {                                                                   // W7
     if (t[k] === 'L' || t[k] === 'R') last = t[k];
     else if (t[k] === 'EN' && last === 'L') t[k] = 'L';
@@ -213,11 +233,11 @@ function stLevels(ln) {
   pairs.sort((a, b) => a[0] - b[0]);
   for (const [o, c] of pairs) {
     let inside = null;
-    for (let k = o + 1; k < c; k++) { const d = strong(t[k]); if (d === 'R') { inside = 'R'; break; } if (d) inside = d; }
+    for (let k = o + 1; k < c; k++) { const d = strong(t[k]); if (d === sos) { inside = sos; break; } if (d) inside = d; }
     if (!inside) continue;
-    let dir = 'R';
-    if (inside === 'L') {   // داخلش فقط انگلیسی: اگر پیش از پرانتز هم انگلیسی بود چپ‌به‌راست، وگرنه راست‌به‌چپ
-      let before = 'R';
+    let dir = sos;
+    if (inside !== sos) {   // داخلش فقط جهت مخالف: اگر پیش از پرانتز هم همان جهت بود همان، وگرنه جهت پاراگراف
+      let before = sos;
       for (let k = o - 1; k >= 0; k--) { const d = strong(t[k]); if (d) { before = d; break; } }
       dir = before;
     }
@@ -226,17 +246,17 @@ function stLevels(ln) {
   for (let k = 0; k < m; k++) {                                                                   // N1 + N2
     if (strong(t[k])) continue;
     let e = k; while (e < m && !strong(t[e])) e++;
-    const before = k ? strong(t[k - 1]) : 'R', after = e < m ? strong(t[e]) : 'R';
-    for (let j = k; j < e; j++) t[j] = before === after ? before : 'R';
+    const before = k ? strong(t[k - 1]) : sos, after = e < m ? strong(t[e]) : sos;
+    for (let j = k; j < e; j++) t[j] = before === after ? before : sos;
     k = e - 1;
   }
   const lv = new Array(ln.length);
-  idx.forEach((i, k) => { lv[i] = t[k] === 'R' ? 1 : 2; });                                     // I2
-  for (let i = 0; i < lv.length; i++) if (lv[i] === undefined) lv[i] = i ? lv[i - 1] : 1;
+  idx.forEach((i, k) => { lv[i] = t[k] === 'R' ? 1 : ST_LTR && t[k] === 'L' ? 0 : 2; });       // I1/I2
+  for (let i = 0; i < lv.length; i++) if (lv[i] === undefined) lv[i] = i ? lv[i - 1] : base;
   return lv;
 }
-const ST_LV = new WeakMap();   // سطح‌های هر پاراگراف، یک بار برای همه‌ی دورهای کوچک کردن فونت
-const stLvOf = ln => { let v = ST_LV.get(ln); if (!v) ST_LV.set(ln, (v = stLevels(ln))); return v; };
+const ST_LV = new WeakMap(), ST_LV_LTR = new WeakMap();   // سطح‌های هر پاراگراف، یک بار برای همه‌ی دورهای کوچک کردن فونت
+const stLvOf = ln => { const M = ST_LTR ? ST_LV_LTR : ST_LV; let v = M.get(ln); if (!v) M.set(ln, (v = stLevels(ln))); return v; };
 
 /* ---------- کشیدن ---------- */
 const ST_MC = new Map();
@@ -299,7 +319,7 @@ function stLogoBox(s) {
 // box = {x, w}: کادر متن به‌جای پهنای کامل استوری (تب کاروسل از همین موتور استفاده می‌کند)
 function stLayout(ctx, frame, s, size, box) {
   const maxW = box ? box.w : STW - 2 * ST_PAD, pitch0 = size * s.lh, lhBig = 1 + (s.lh - 1) * 0.55;
-  const font = px => `${s.weight} ${px}px ${ST_FONT}`;
+  const font = px => `${s.weight} ${px}px ${s.font || ST_FONT}`;
   const space = px => { ctx.font = font(px); return stW(ctx, ' '); };
   const lines = []; let h = 0, widest = 0, cur = [], cw = 0, ind = 0, para = null, lv = null;
   const close = () => {   // خطی که بخش بزرگ دارد بلندتر می‌شود، ولی با فاصله‌ی خطِ تنگ‌تر تا از هم نپاشد
@@ -329,17 +349,17 @@ function stLayout(ctx, frame, s, size, box) {
   return { lines, h, pitch0, size, fits: widest <= maxW };
 }
 function stLines(ctx, L, s, y, box) {
-  const font = px => `${s.weight} ${px}px ${ST_FONT}`;
+  const font = px => `${s.weight} ${px}px ${s.font || ST_FONT}`;
   const markFg = stLum(s.hl) > 0.5 ? (stLum(s.bg) < 0.4 ? s.bg : ST_PAL.bg) : '#ffffff';
   ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
   for (const ln of L.lines) {
     if (!ln) { y += L.pitch0 * s.pgap; continue; }
     ctx.font = font(ln.mx);   // همه‌ی کلمه‌های خط روی یک خط کرسی، به اندازه‌ی بزرگ‌ترینشان
-    const m = ctx.measureText('گل'), asc = m.fontBoundingBoxAscent, desc = m.fontBoundingBoxDescent;
+    const m = ctx.measureText(ST_LTR ? 'Hg' : 'گل'), asc = m.fontBoundingBoxAscent, desc = m.fontBoundingBoxDescent;
     const base = y + (ln.pitch - asc - desc) / 2 + asc;
     // تکه‌ها به ترتیب منطقی: تورفتگی، تکه‌های هم‌سطحِ هر کلمه، فاصله‌ی بعد از هر کلمه (با سطح خود فاصله‌ها)
     const segs = [];
-    if (ln.ind) segs.push({ w: ln.ind, lvl: 1 });
+    if (ln.ind) segs.push({ w: ln.ind, lvl: ST_LTR ? 0 : 1 });
     ln.toks.forEach((t, k) => {
       ctx.font = font(t.px);
       for (let i = t.a; i < t.b;) {
@@ -359,8 +379,8 @@ function stLines(ctx, L, s, y, box) {
         segs.splice(i, j - i, ...segs.slice(i, j).reverse()); i = j;
       }
     const total = segs.reduce((a, g) => a + g.w, 0);
-    let x = box ? (s.align === 'center' ? box.x + (box.w - total) / 2 : box.x + box.w - total)
-      : s.align === 'center' ? (STW - total) / 2 : STW - ST_PAD - total;
+    const start = box ? (ST_LTR ? box.x : box.x + box.w - total) : ST_LTR ? ST_PAD : STW - ST_PAD - total;   // «راست‌چین» در انگلیسی = چپ‌چین
+    let x = s.align === 'center' ? (box ? box.x + (box.w - total) / 2 : (STW - total) / 2) : start;
     for (const g of segs) { g.x0 = x; x += g.w; }
     if (s.hlMode === 'marker') {   // تکه‌های تأکیدیِ کنار هم یک نوار: با یک فاصله، یا فاصله‌هایی که خودشان تأکید خورده‌اند
       const bands = []; let band = null, gap = [];
@@ -391,11 +411,11 @@ function stDeco(ctx, s, size, y) {
   ctx.fillStyle = s.decoColor;
   if (s.deco === 'bar') {
     const w = Math.max(90, size * 2.1), h = Math.max(8, size * 0.16);
-    stRR(ctx, s.align === 'center' ? (STW - w) / 2 : STW - ST_PAD - w, y, w, h, h / 2); ctx.fill();
+    stRR(ctx, s.align === 'center' ? (STW - w) / 2 : ST_LTR ? ST_PAD : STW - ST_PAD - w, y, w, h, h / 2); ctx.fill();
   } else if (s.deco === 'quote') {
-    ctx.font = `900 ${size * 2.6}px ${ST_FONT}`; ctx.direction = 'rtl'; ctx.textBaseline = 'alphabetic';
-    ctx.textAlign = s.align === 'center' ? 'center' : 'right';
-    ctx.fillText('«', s.align === 'center' ? STW / 2 : STW - ST_PAD, y + size * 1.5);
+    ctx.font = `900 ${size * 2.6}px ${ST_FONT}`; ctx.direction = ST_LTR ? 'ltr' : 'rtl'; ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = s.align === 'center' ? 'center' : ST_LTR ? 'left' : 'right';
+    ctx.fillText(ST_LTR ? '“' : '«', s.align === 'center' ? STW / 2 : ST_LTR ? ST_PAD : STW - ST_PAD, y + size * (ST_LTR ? 2 : 1.5));
   }
 }
 // یک استوری کامل. اگر متن جا نشود فونت دو پیکسل دو پیکسل کوچک می‌شود (تا ۲۶).
@@ -419,6 +439,7 @@ function stDraw(ctx, frame, s) {
   return { size, shrunk: size < s.size, overflow: blockH > bottom - top + 1 || !L.fits };
 }
 function stPaint(cv, frame, s, scale = 1) {
+  stDir(window.LANG && LANG.cur);
   const w = Math.round(STW * scale), h = Math.round(STH * scale);
   if (cv.width !== w) cv.width = w;
   if (cv.height !== h) cv.height = h;
@@ -499,9 +520,11 @@ function stShade(hex, k) {
   return '#' + f(n >> 16 & 255) + f(n >> 8 & 255) + f(n & 255);
 }
 async function stFonts() {
+  if (window.LANG && LANG.ready) { await LANG.ready; stDir(LANG.cur); }
   try {
     const faces = await Promise.all([500, 600, 700, 800, 900].map(w => document.fonts.load(`${w} 40px Vazirmatn`, 'سلام')));
-    ST.fontOK = faces.every(f => f.length);
+    const en = window.LANG ? await LANG.loadFonts() : true;   // فونت‌های انگلیسی؛ فقط در حالت EN جلوی دانلود را می‌گیرند
+    ST.fontOK = faces.every(f => f.length) && (en || !ST_LTR);
   } catch { ST.fontOK = false; }
 }
 
@@ -528,7 +551,13 @@ const stFrameOf = el => { const f = stRead($('.st-ed', el)); let b = f.length; w
 // هر استوری یک کارت جدا با ویرایشگر و پیش‌نمایش خودش است و کارت تازه زیر قبلی می‌آید، تا همه‌ی استوری‌ها در صفحه دیده شوند.
 // (قبلاً یک ویرایشگر بود با «---» و پیش‌نمایش‌ها کنار هم در یک ردیف افقی بودند که از سومی به بعد از کادر بیرون می‌زد.)
 async function viewStory() {
-  const keep = $$('.st-story .st-ed').map(e => e.innerHTML);   // بعد از اولین ذخیره صفحه از نو ساخته می‌شود؛ متن‌ها بمانند
+  let keep = $$('.st-story .st-ed').map(e => e.innerHTML);   // بعد از اولین ذخیره صفحه از نو ساخته می‌شود؛ متن‌ها بمانند
+  // آبشار محتوا (waterfall.js) فریم‌های یک بسته را این‌جا می‌فرستد؛ **…** = تأکید. پیش‌نویس‌های قبلی کنار گذاشته می‌شوند.
+  if (Array.isArray(window.ST_PENDING) && window.ST_PENDING.length) {
+    keep = window.ST_PENDING.map(t => stHTML(stDemo(String(t))));
+    window.ST_PENDING = null;
+    setTimeout(() => { stSaveDrafts(); toast(`${faNum(keep.length)} استوری از آبشار محتوا آمد`); }, 600);
+  }
   $('#page').innerHTML = '<div class="empty">در حال بارگذاری…</div>';
   const [d, b] = await Promise.all([api('/api/story'), api('/api/brand'), stFonts(), stLogos()]);
   for (const c of (b && b.fields && b.fields.colors && b.fields.colors.v) || []) if (c.hex) ST.names[c.hex.toLowerCase()] = c.name;
@@ -546,7 +575,7 @@ async function viewStory() {
     </section>`;
   $('#page').innerHTML = `
     <div class="st-wrap">
-      <div class="page-head"><h2>استوری متنی</h2>
+      <div class="page-head"><h2>استوری متنی${ST_LTR ? ` <span class="pl-page" title="خروجی انگلیسی با فونت ${esc(LANG.family('head'))}؛ «Aa» در هدر فونت را عوض می‌کند">EN · ${esc(LANG.family('head'))}</span>` : ''}</h2>
         <p>متن هر استوری را در کارت خودش بنویس؛ با استایل ثابتت روی فایل ۱۰۸۰×۱۹۲۰ کشیده می‌شود و آماده‌ی انتشار دانلود می‌شود. پیش‌نمایش همان فایل است.</p></div>
       ${ST.fontOK ? '' : '<div class="st-warn">فونت وزیرمتن بارگذاری نشد و خروجی با فونت دیگری کشیده می‌شود. صفحه را یک بار تازه کن.</div>'}
       ${ST.saved ? '' : gal}
@@ -573,16 +602,22 @@ async function viewStory() {
 }
 
 // پیش‌نویس‌ها، یکی برای هر استوری. پیش‌نویس قدیمیِ تک‌ویرایشگر (st-draft با «---») به چند استوری تبدیل می‌شود.
+// پیش‌نویس‌های استوری انگلیسی جدا نگه داشته می‌شوند (st-drafts-en)
+const stDraftKey = () => ST_LTR ? 'st-drafts-en' : 'st-drafts';
 function stDrafts() {
-  try { const a = JSON.parse(stLS('st-drafts') || 'null'); if (Array.isArray(a) && a.length) return a.map(String); } catch {}
+  try { const a = JSON.parse(stLS(stDraftKey()) || 'null'); if (Array.isArray(a) && a.length) return a.map(String); } catch {}
+  if (ST_LTR) return [''];
   const old = stLS('st-draft');
   const fr = old ? stFrames(stParse(old)) : [];
   return fr.length ? fr.map(stHTML) : [''];
 }
 function stSaveDrafts() {
   clearTimeout(ST.tDraft);
-  ST.tDraft = setTimeout(() => stLS('st-drafts', JSON.stringify($$('.st-story .st-ed').map(e => e.innerHTML))), 400);
+  const key = stDraftKey();
+  ST.tDraft = setTimeout(() => stLS(key, JSON.stringify($$('.st-story .st-ed').map(e => e.innerHTML))), 400);
 }
+// پیش از عوض شدن زبان: پیش‌نویس همین زبان همین حالا ذخیره شود (وگرنه صفحه‌ی خالی‌شده رویش نوشته می‌شد)
+window.stFlush = () => { clearTimeout(ST.tDraft); if ($('.st-story .st-ed')) stLS(stDraftKey(), JSON.stringify($$('.st-story .st-ed').map(e => e.innerHTML))); };
 function stAddStory(html, after, focus) {
   const box = $('#stStories'); if (!box) return null;
   const el = document.createElement('article'); el.className = 'st-story';
@@ -595,7 +630,7 @@ function stAddStory(html, after, focus) {
         <button class="st-tool" data-sta="small" title="Cmd+Shift+,">کوچک‌تر</button>
         <button class="st-tool st-del" data-sta="del"></button>
       </div>
-      <div class="st-ed" contenteditable="true" dir="rtl" spellcheck="false" data-ph="متن این استوری را این‌جا بنویس یا بچسبان…"></div>
+      <div class="st-ed${ST_LTR ? ' en' : ''}" contenteditable="true" dir="${ST_LTR ? 'ltr' : 'rtl'}" spellcheck="${ST_LTR}" data-ph="${ST_LTR ? 'Write or paste this story’s text here…' : 'متن این استوری را این‌جا بنویس یا بچسبان…'}"></div>
       <p class="st-fnote"></p>
     </div>
     <div class="st-frame">
@@ -760,7 +795,7 @@ function stCtl() {
     ${row('اندازه‌ی متن', range('size', 30, 110, 1) + chips('size', [[42, 'ریز'], [54, 'متوسط'], [70, 'درشت'], [88, 'خیلی درشت']]))}
     ${row('ضخامت', chips('weight', [[500, 'معمولی'], [600, 'نیمه‌ضخیم'], [700, 'ضخیم'], [800, 'خیلی ضخیم']]))}
     ${row('فاصله‌ی خط‌ها', range('lh', 1.3, 2.3, 0.05))}
-    ${row('چینش', chips('align', [['right', 'راست‌چین'], ['center', 'وسط‌چین']]) + sep + chips('valign', [['top', 'از بالا'], ['center', 'وسط صفحه']]))}
+    ${row('چینش', chips('align', [['right', ST_LTR ? 'چپ‌چین' : 'راست‌چین'], ['center', 'وسط‌چین']]) + sep + chips('valign', [['top', 'از بالا'], ['center', 'وسط صفحه']]))}
     ${row('لوگو', chips('logo', [['none', 'بدون'], ['bottom', 'پایین'], ['top', 'بالا'], ['mark', 'فقط نشان لوگو']]))}
     ${s.logo !== 'none' ? row('اندازه‌ی لوگو', range('logoW', 0.08, 0.5, 0.01)
         + (ST.logos && ST.logos.light ? '' : '<span class="st-dim">لوگویی نیست؛ در «هسته‌ی برند ← هویت بصری» آپلودش کن</span>')) : ''}
@@ -803,7 +838,7 @@ function stRenderStory(el) {
   if (!el || !el.isConnected) return;
   const frame = stFrameOf(el), full = frame.some(l => stTxt(l).trim());
   const demo = !full && $$('.st-story').length === 1;   // فقط تک‌استوریِ خالی، متن نمونه نشان می‌دهد
-  const r = stPaint($('canvas', el), demo ? stDemo(ST_DEMO[stDemoKey()]) : full ? frame : [], ST.style);
+  const r = stPaint($('canvas', el), demo ? stDemo(stDemoSrc(stDemoKey())) : full ? frame : [], ST.style);
   el._full = full;
   $('.st-badge', el).hidden = !demo;
   $$('.st-fbar button', el).forEach(b => (b.disabled = !full || !ST.fontOK));
@@ -830,7 +865,7 @@ function stRenderGal() {   // گالری با متن اولین استوریِ �
   for (const cv of $$('#stGal canvas[data-stc]')) {
     const c = cards.find(x => x.key === cv.dataset.stc); if (!c) continue;
     const scale = Math.min(0.5, Math.max(0.2, (cv.clientWidth || 160) * (devicePixelRatio || 1) / STW));
-    stPaint(cv, first || stDemo(ST_DEMO[c.demo]), c.st, scale);
+    stPaint(cv, first || stDemo(stDemoSrc(c.demo)), c.st, scale);
   }
 }
 function stMarkGal() {

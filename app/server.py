@@ -21,6 +21,12 @@ import story as st
 import advisor as adv
 import carousel as cr
 import video as vd
+import lang as lg        # زبان محتوا: کلید فا/EN هدر
+import planner as pl     # تقویم محتوا
+import experience as xp  # بانک تجربه
+import audience as au    # صدای مخاطب
+import waterfall as wfl  # آبشار محتوا
+import review as rv      # مرور ماهانه
 
 APP    = Path(__file__).resolve().parent
 ROOT   = APP.parent
@@ -86,7 +92,7 @@ def run_build(url):
 
         c = subprocess.run([cfg.claude_bin(), "-p", BUILD_PROMPT.format(url=url, slug=slug),
                             "--model", am.get("produce"),
-                            "--permission-mode", "acceptEdits", "--output-format", "text"],
+                            "--permission-mode", "acceptEdits", "--output-format", "text", *lg.claude_args()],
                            cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5400)
         if c.returncode != 0:
             log((c.stderr or "")[-400:])
@@ -376,8 +382,8 @@ def _run_one(idea_id, step):
     cmd = [cfg.claude_bin(), "-p", STEP_PROMPT[step].format(id=idea_id), "--model", am.get(step),
            "--permission-mode", "acceptEdits", "--output-format", "text",
            # ابزارهای وب باید صریح مجاز شوند — acceptEdits فقط ویرایش فایل را باز می‌کند
-           "--allowedTools", "WebSearch", "WebFetch"]
-    ilog(f"▸ مدل: {am.CHOICES.get(am.get(step), am.get(step))}")
+           "--allowedTools", "WebSearch", "WebFetch", *lg.claude_args()]
+    ilog(f"▸ مدل: {am.CHOICES.get(am.get(step), am.get(step))}" + (" · English" if lg.current() == "en" else ""))
     r = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=3600)
     if r.returncode != 0:
         ilog((r.stderr or r.stdout or "")[-300:])
@@ -618,6 +624,11 @@ class H(http.server.SimpleHTTPRequestHandler):
             code, payload, ctype = r
             return self._send(payload, ctype, code) if ctype else self._json(payload, code)
 
+        r = lg.handle_get(p, q) or pl.handle_get(p, q) or xp.handle_get(p, q) or au.handle_get(p, q) or wfl.handle_get(p, q) or rv.handle_get(p, q)
+        if r is not None:      # فونت‌های انگلیسی اسم ثابت دارند و عوض نمی‌شوند
+            code, payload, ctype = r
+            return self._send(payload, ctype, code, cache="max-age=31536000, immutable" if ctype.startswith("font/") else "no-store") if ctype else self._json(payload, code)
+
         static = {"/": "index.html", "/index.html": "index.html",
                   "/style.css": "style.css", "/app.js": "app.js", "/instagram.js": "instagram.js",
                   "/brand.js": "brand.js", "/reel-editor.js": "reel-editor.js", "/translate.js": "translate.js",
@@ -635,6 +646,8 @@ class H(http.server.SimpleHTTPRequestHandler):
         p = urlparse(self.path).path
         if p == "/api/video/upload":   # تدوین ویدیو: بدنه خودِ فایل است (جریانی)، نه JSON
             return vd.handle_upload(self)
+        if p == "/api/audience/upload":   # صدای مخاطب: ضبط تماس، اسکرین‌شات، فایل (جریانی)
+            return au.handle_upload(self)
         n = int(self.headers.get("Content-Length") or 0)
         try:
             body = json.loads(self.rfile.read(n) or b"{}")
@@ -691,6 +704,7 @@ class H(http.server.SimpleHTTPRequestHandler):
                                  "status": "idea", "score": None,
                                  "source": {"kind": kind}, "note": note,
                                  **({"audio": audio_name} if audio_name else {}),
+                                 **({"lang": "en"} if lg.current() == "en" else {}),   # ایده‌ای که برای پیج انگلیسی ثبت شد
                                  "created": time.strftime("%Y-%m-%d"), "steps": {}})
                 DATA.mkdir(exist_ok=True)
                 (DATA / "ideas.json").write_text(json.dumps(ideas, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -784,6 +798,10 @@ class H(http.server.SimpleHTTPRequestHandler):
         if r is not None:
             return self._json(r[1], r[0])
 
+        r = lg.handle_post(p, body) or pl.handle_post(p, body) or xp.handle_post(p, body) or au.handle_post(p, body) or wfl.handle_post(p, body) or rv.handle_post(p, body)
+        if r is not None:
+            return self._json(r[1], r[0])
+
         self._json({"error": "not found"}, 404)
 
 
@@ -793,14 +811,18 @@ MODULES = [
     {"key": "start",     "label": "شروع",          "ready": True},
     {"key": "dashboard", "label": "داشبورد",       "ready": True},
     {"key": "brand",     "label": "هسته‌ی برند",   "ready": True},
+    {"key": "experience", "label": "بانک تجربه",  "ready": True},
+    {"key": "audience",  "label": "صدای مخاطب",   "ready": True},
     {"key": "advisor",   "label": "مشاور",         "ready": True},
     {"key": "ideas",     "label": "بانک ایده",     "ready": True},
+    {"key": "planner",   "label": "تقویم محتوا",   "ready": True},
     {"key": "translations", "label": "ترجمه‌های یوتیوب", "ready": True},
     {"key": "reels",     "label": "استودیو ریلز",  "ready": True},
     {"key": "video",     "label": "تدوین ویدیو",   "ready": True},
     {"key": "story",     "label": "استوری",        "ready": True},
     {"key": "carousel",  "label": "کاروسل و پست",  "ready": True},
     {"key": "analytics", "label": "تحلیل اینستاگرام",  "ready": True},
+    {"key": "review",    "label": "مرور ماهانه",   "ready": True},
     {"key": "settings",  "label": "تنظیمات",       "ready": True},
 ]
 
@@ -826,6 +848,7 @@ def main():
     print("  ▸  این پنجره را تا وقتی با استودیو کار می‌کنی باز نگه دار. برای بستن: Ctrl+C\n")
     DATA.mkdir(exist_ok=True); BRAND.mkdir(exist_ok=True)
     threading.Thread(target=ig.token_keeper, daemon=True).start()
+    au.resume()   # منبع‌هایی که وسط پردازش مانده بودند
     if not os.environ.get("STUDIO_NO_BROWSER"):
         threading.Timer(0.6, lambda: webbrowser.open(url)).start()
     try:

@@ -20,6 +20,7 @@ from pathlib import Path
 import settings as cfg            # IDEAS_LOCK: همه‌ی نوشتن‌های ideas.json از این قفل رد می‌شوند
 import ai_models as am
 import brand as bc                # پیلرهای هسته‌ی برند
+import knowledge as kn
 
 ROOT   = Path(__file__).resolve().parent.parent
 REELS  = ROOT / "modules" / "reels"
@@ -600,7 +601,7 @@ def run_ideas(slug):
     try:
         tr = load(slug)
         bf = ROOT / "brand" / "brand-core.md"
-        fill = {"BRAND": bf.read_text(encoding="utf-8") if bf.exists() else "(هسته‌ی برند پیدا نشد)",
+        fill = {"BRAND": kn.brand_plus(bf.read_text(encoding="utf-8")) if bf.exists() else "(هسته‌ی برند پیدا نشد)",
                 "PILLARS": "، ".join(bc.pillar_names()),
                 "TITLE": tr.get("title", ""), "CHANNEL": tr.get("channel", ""),
                 "TEXT": "\n\n".join(f"[{p['t']}] {p['fa']}" for c in tr["chunks"] for p in c["paras"])}

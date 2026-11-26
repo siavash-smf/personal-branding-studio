@@ -19,6 +19,11 @@ STEPS = {
     "translate": "ترجمه‌ی یوتیوب",
     "video": "تدوین ویدیو",
     "analyst": "تحلیلگر اینستاگرام",
+    "planner": "تقویم محتوا: پیشنهاد موضوع",
+    "experience": "بانک تجربه: جدا کردن تکه‌ها",
+    "audience": "صدای مخاطب: استخراج بینش",
+    "waterfall": "آبشار محتوا: ساخت بسته",
+    "review": "مرور ماهانه: تحلیل کارنامه",
 }
 DEFAULT = "claude-sonnet-5-5"
 LOCK = threading.Lock()

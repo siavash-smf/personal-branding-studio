@@ -1,0 +1,67 @@
+/* ================= مرور ماهانه (review.js) ================= */
+.rv-live, .rv-one, .rv-hist{margin-bottom:18px}
+.rv-cols{margin-bottom:18px}
+.rv-h{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:12px}
+.rv-h h3{margin:0}
+.rv-live h3 small, .rv-one h3 small{font-size:12.5px; font-weight:400; color:var(--dim2); font-family:var(--font)}
+.rv-when{font-size:12.5px; color:var(--dim2)}
+.rv-when.due{color:var(--warn)}
+.rv-stats{margin-bottom:14px}
+.rv-stats .stat b{font-size:24px}
+.rv-stats .stat b em{font-size:12px; font-style:normal; font-family:var(--font); font-weight:600}
+.rv-noig{grid-column:span 2}
+.rv-noig span a{color:var(--accent2)}
+.rv-plan{display:flex; flex-direction:column; gap:8px; margin-bottom:12px}
+.rv-bar{display:flex; align-items:center; gap:12px; font-size:13.5px}
+.rv-bar span{min-width:120px; color:var(--dim)}
+.rv-bar b{min-width:70px; font-weight:600}
+.rv-track{flex:1; height:8px; background:var(--panel2); border-radius:99px; overflow:hidden}
+.rv-track i{display:block; height:100%; background:var(--accent); border-radius:99px}
+.rv-chips{display:flex; flex-wrap:wrap; gap:7px; margin:8px 0 12px}
+.rv-chips span{font-size:12.5px; color:var(--dim); background:var(--panel2); border:1px solid var(--line); padding:3px 10px; border-radius:99px}
+.rv-posts{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-top:6px}
+.rv-posts h4, .rv-one h4, .rv-manual h4{margin:10px 0 8px; font-size:14px}
+.rv-post{display:grid; grid-template-columns:52px 1fr; gap:2px 10px; align-items:baseline; padding:8px 10px; border-radius:10px;
+  background:var(--panel2); border:1px solid var(--line); margin-bottom:6px; color:var(--fg); text-decoration:none}
+.rv-post:hover{border-color:var(--accent)}
+.rv-post b{grid-row:span 2; font-family:var(--display); font-size:18px; color:var(--accent2)}
+.rv-post span{font-size:13.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rv-post small{font-size:11.5px; color:var(--dim2)}
+.rv-manual{border-top:1px solid var(--line); margin-top:8px; padding-top:4px}
+.rv-mgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px}
+.rv-mgrid label, .rv-note{display:flex; flex-direction:column; gap:5px; font-size:12.5px; color:var(--dim)}
+.rv-note{margin-top:12px}
+.rv-note .cap-text{min-height:70px}
+.rv-target{margin-bottom:14px}
+.rv-tt{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:5px}
+.rv-tt b{font-size:14.5px}
+.rv-tt span{font-size:12.5px; color:var(--dim)}
+.rv-tt .del, .rv-pins .del{background:none; border:none; color:var(--dim2); cursor:pointer; font-size:13px; margin-inline-start:auto}
+.rv-target small{font-size:11.5px; color:var(--dim2)}
+.rv-tform{display:flex; flex-direction:column; gap:8px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line)}
+.rv-tform label{display:flex; flex-direction:column; gap:5px; font-size:12.5px; color:var(--dim); flex:1; min-width:130px}
+.rv-tform select{background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:10px; padding:9px 10px; font-size:13.5px}
+.rv-pins{list-style:none; padding:0!important}
+.rv-pins li{display:flex; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); color:var(--fg)}
+.rv-md{margin-top:12px}
+.rv-md summary{cursor:pointer; color:var(--accent2); font-size:12.5px}
+.rv-md .md{font-size:13px; max-width:none}
+.rv-hist h3{margin-bottom:10px}
+.rv-row{display:flex; align-items:center; gap:12px; width:100%; background:var(--panel2); border:1px solid var(--line); border-radius:10px;
+  padding:9px 12px; margin-bottom:6px; color:var(--fg); cursor:pointer; font-family:inherit; text-align:start}
+.rv-row.on, .rv-row:hover{border-color:var(--accent)}
+.rv-row span{font-size:12.5px; color:var(--dim)}
+.rv-row i{font-size:12px; font-style:normal; color:var(--dim2)}
+.rv-ok{color:var(--up)!important; font-style:normal; font-size:12.5px}
+.rv-sum{font-size:15px; line-height:2; margin:14px 0}
+.rv-notep{color:var(--dim); font-size:13.5px}
+.rv-pairs{list-style:none; padding:0!important; margin:0}
+.rv-pairs li{padding:8px 10px; border-inline-start:3px solid var(--line); margin-bottom:6px; background:var(--panel2); border-radius:6px}
+.rv-pairs li.ok{border-inline-start-color:var(--up)}
+.rv-pairs li.no{border-inline-start-color:var(--warn)}
+.rv-pairs b{display:block; font-size:14px; font-weight:600; color:var(--fg)}
+.rv-pairs small{font-size:12.5px; color:var(--dim)}
+.rv-learn{border-top:1px solid var(--line); margin-top:16px; padding-top:6px}
+.rv-learn h4 small{font-weight:400; color:var(--dim2); font-size:12px}
+.rv-learn .cap-text{min-height:90px}
+.rv-pinrow{display:flex; flex-wrap:wrap; gap:4px 12px; margin:6px 0 4px}

@@ -20,6 +20,7 @@ from pathlib import Path
 
 import settings as cfg
 import ai_models as am
+import lang as lg
 
 ROOT    = Path(__file__).resolve().parent.parent
 DATA    = ROOT / "data"
@@ -622,7 +623,7 @@ def run_report():
     jlog("report", "▸ Claude دارد داده‌ها را می‌خواند؛ چند دقیقه طول می‌کشد…")
     prompt = REPORT_PROMPT.format(day=day, out=f"data/instagram/reports/{day}.md", owner=cfg.owner_line())
     r = subprocess.run([cfg.claude_bin(), "-p", prompt, "--model", am.get("analyst"),
-                        "--permission-mode", "acceptEdits", "--output-format", "json"],
+                        "--permission-mode", "acceptEdits", "--output-format", "json", *lg.claude_args()],
                        cwd=str(ROOT), capture_output=True, text=True, timeout=3600)
     if r.returncode != 0:
         jlog("report", (r.stderr or r.stdout or "")[-300:])
@@ -642,7 +643,7 @@ def run_ask(name, question):
     meta = jread(meta_f, {"chat": []})
     jset("ask", step="تحلیلگر در حال جواب دادن")
     cmd = [cfg.claude_bin(), "-p", ASK_PROMPT.format(name=name, q=question), "--model", am.get("analyst"),
-           "--output-format", "json"]
+           "--output-format", "json", *lg.claude_args()]
     if meta.get("session_id"):
         cmd += ["--resume", meta["session_id"]]
     r = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=1800)

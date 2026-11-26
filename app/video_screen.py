@@ -25,7 +25,7 @@ VLAYOUT = {"frame": "قاب وسط", "follow": "تمام‌قد، دنبال ز�
 VBG = {"brand": "زمینه‌ی سرمه‌ای", "blur": "زمینه‌ی محو"}
 BLUR_FA = {"email": "ایمیل", "key": "کلید یا توکن", "card": "شماره‌ی کارت", "phone": "تلفن", "manual": "دستی"}
 SENS = [("email", re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")),
-        ("key", re.compile(r"\b(?:sk|pk|rk|fc|ghp|gho|ghu|ghs|ghr|github_pat|xox[abprs]|AIza|AKIA|ASIA|hf|glpat|whsec|rk_live|sk_live)"
+        ("key", re.compile(r"\b(?:sk|pk|rk|fc|ghp|gho|ghu|ghs|ghr|github_pat|xox[abprs]|AIza|AQ\.|AKIA|ASIA|hf|glpat|whsec|rk_live|sk_live)"
                            r"[-_]?[A-Za-z0-9_\-]{6,}")),
         ("key", re.compile(r"(?<![\w/.])(?=[A-Za-z0-9_\-]{24,}(?![\w/.]))(?=[A-Za-z_\-]*\d)(?=[\d_\-]*[A-Za-z])[A-Za-z0-9_\-]{24,}")),
         ("key", re.compile(r"\b[A-Za-z0-9]{2,}[-_][A-Za-z0-9]{1,}\s?[•*·.]{4,}\s?[A-Za-z0-9]{0,16}")),   # کلید نیمه‌پنهان «fc-4••••05200c2d» با ته پیدایش

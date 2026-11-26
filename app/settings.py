@@ -274,7 +274,8 @@ def handle_post(p, body):
         if not key:
             write_env("GEMINI_API_KEY", "")
             return 200, {"ok": True, "set": False}
-        if not re.fullmatch(r"[\w\-]{20,200}", key):
+        # کلید قدیمی «AIza…» یا کلید تازه‌ی AI Studio «AQ.…» (auth key، نقطه دارد)؛ درستی‌اش را خود Google در test_gemini می‌سنجد
+        if not re.fullmatch(r"[A-Za-z0-9_.\-]{20,200}", key):
             return 400, {"error": "این شبیه کلید Gemini نیست. کلید را کامل از Google AI Studio کپی کن."}
         ok, err = test_gemini(key)
         if not ok:

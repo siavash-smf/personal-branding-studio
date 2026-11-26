@@ -28,8 +28,10 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import settings as cfg            # IDEAS_LOCK: همه‌ی نوشتن‌های ideas.json از این قفل رد می‌شوند
 import ai_models as am
+import lang as lg
 import voice
 import brand as bc
+import knowledge as kn
 
 APP = Path(__file__).resolve().parent
 ROOT = APP.parent
@@ -511,6 +513,8 @@ def build_kb(drafts=None):
         mem = load_memory()["items"]
         drafts = clean_drafts(drafts)
         brand_md = read_text(ROOT / "brand" / "brand-core.md")
+        if brand_md:
+            brand_md = kn.brand_plus(brand_md)   # + بانک تجربه، صدای مخاطب، یادگیری‌ها
         (tmp / "brand-core.md").write_text(brand_md, encoding="utf-8")
         sec = {"brand": brand_md or "(هسته‌ی برند هنوز خالی است.)", "instagram": _instagram(tmp),
                "report": _report(tmp), "ideas": _ideas(tmp),
@@ -704,7 +708,7 @@ def _cmd(chat, effort, resume):
     cmd = [claude_bin(), "-p", "--model", am.get("advisor"), "--effort", effort, "--safe-mode", "--restricted",
            "--system-prompt-file", str(CHATS / chat["id"] / "system.md"),
            "--tools", ",".join(TOOLS), "--allowedTools", "WebSearch", "WebFetch", "--add-dir", str(KB),
-           "--permission-prompts", "none",
+           "--permission-prompts", "none", *lg.claude_args(kind="chat"),
            "--output-format", "stream-json", "--include-partial-messages", "--verbose"]
     return cmd + (["--resume", chat["session"]] if resume else ["--session-id", chat["session"]])
 

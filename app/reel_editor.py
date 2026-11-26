@@ -8,6 +8,7 @@ import json, re, shutil, subprocess, threading, time
 from pathlib import Path
 import ai_models as am
 import settings as cfg
+import lang as lg
 
 ROOT  = Path(__file__).resolve().parent.parent
 IDEAS = ROOT / "data" / "ideas"
@@ -221,9 +222,9 @@ def parse_produced(stdout):
             "prev": {}, "notes": {}}
 
 
-def _ask(prompt, timeout, model, web=False):
+def _ask(prompt, timeout, model, web=False, lang=None):
     # پرامپت از stdin می‌رود: خط فرمان ویندوز حداکثر ۳۲ هزار حرف جا دارد
-    cmd = [claude_bin(), "-p", "--output-format", "json", "--model", model]
+    cmd = [claude_bin(), "-p", "--output-format", "json", "--model", model, *lg.claude_args(lang)]
     if web:
         cmd += ["--allowedTools", "WebSearch", "WebFetch"]
     r = subprocess.run(cmd, input=prompt, cwd=str(ROOT), capture_output=True, text=True, timeout=timeout)
@@ -238,8 +239,9 @@ def _ask(prompt, timeout, model, web=False):
 def produce(iid, log, model=None):
     """ریلز تازه می‌سازد. (ok, پیام خطا)"""
     model = model or am.get("produce")
-    log(f"▸ مدل: {am.CHOICES.get(model, model)} — Claude دارد ریلز را بخش‌به‌بخش می‌نویسد…")
-    code, res, err = _ask(PRODUCE_PROMPT.replace("ID", iid), 3600, model)
+    lang = lg.current()
+    log(f"▸ مدل: {am.CHOICES.get(model, model)} — Claude دارد ریلز را بخش‌به‌بخش می‌نویسد…" + (" (English)" if lang == "en" else ""))
+    code, res, err = _ask(PRODUCE_PROMPT.replace("ID", iid), 3600, model, lang=lang)
     if code != 0 or not res:
         if err:
             log(err)
@@ -248,6 +250,7 @@ def produce(iid, log, model=None):
     if not reel:
         (IDEAS / iid / "reel.last-output.txt").write_text(res, encoding="utf-8")
         return False, "خروجی قالب درستی نداشت (فایل reel.last-output.txt را ببین)."
+    reel["lang"] = lang
     with LOCK:
         for name in ("reel.json", "reel.md"):    # ریلز قبلی (با ویرایش‌هایش، یا قالب قدیمی) دور ریخته نمی‌شود
             if (IDEAS / iid / name).exists():
@@ -294,7 +297,7 @@ def _regen(iid, field, note):
                   .replace("SEC_RULES", RULES[field]
                            + ("\nاگر نظر کاربر درباره‌ی یک هوک مشخص است، ترتیب را حفظ کن تا آن هوک سر جای خودش بماند."
                               if field == "hooks" else "")))
-        code, res, err = _ask(prompt, 1500, am.get("regen"), web=True)
+        code, res, err = _ask(prompt, 1500, am.get("regen"), web=True, lang=reel.get("lang") or "fa")
         text = _between(res, "<<<OUT", "OUT>>>") if res else ""
         value = parse_hooks(text) if field == "hooks" else text.strip()
         if field == "hashtags":
