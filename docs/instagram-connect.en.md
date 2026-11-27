@@ -43,6 +43,9 @@ These two permissions are all the studio needs:
 |---|---|
 | `instagram_business_basic` | Page name, follower count, list of posts |
 | `instagram_business_manage_insights` | Stats for posts, reels, stories and audience |
+| `instagram_business_manage_comments` | **Optional:** reads comment text for the «صدای مخاطب» (Audience Voice) tab. The studio only reads; it never posts or deletes a comment |
+
+If you add the comments permission later, you have to create a new token (next steps) and paste it into the studio again.
 
 If they aren't in the list, click `Go to permissions and features` and click `Add` next to each one. If Meta adds other permissions on its own, that's fine.
 

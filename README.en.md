@@ -10,7 +10,7 @@ It takes you from an idea to a reel script, stories, carousels, edited video wit
 - **The AI runs on your own Claude subscription** through Claude Code. No API key and no separate payment.
 - **Free and open source.**
 
-> **Language:** the studio's interface and the content it writes are in Persian. This page is an English guide to installing and using it.
+> **Language:** the studio's interface is in Persian. The content it writes is Persian by default, and English when you switch on the **EN** toggle (see [English page](#english-page-fa--en-toggle) below). This page is an English guide to installing and using it.
 
 ## Tabs
 
@@ -21,17 +21,31 @@ The tab names below are followed by the Persian label you will see in the studio
 | **Start** («شروع») | Setup steps, your progress, and a suggested weekly routine |
 | **Dashboard** («داشبورد») | Overview, your next step, and a quick translation from a YouTube link |
 | **Brand Core** («هسته‌ی برند») | A questionnaire about you, your audience, voice, content pillars, colours and logo. Every AI feature reads it before doing anything |
+| **Experience Bank** («بانک تجربه») | Your stories, opinions, mistakes, client results and what you're working on these days. Once a month, answer a few questions by voice note and Claude splits your answers into separate entries. Every part of the studio takes its examples and stories from here |
+| **Audience Voice** («صدای مخاطب») | Give it DMs, comments, call recordings, voice notes and screenshots. It pulls out your audience's pains, questions and doubts in their exact words, with how often each comes up, and turns any of them into a content idea or a Brand Core entry with one click |
 | **Advisor** («مشاور») | Chat with a personal-branding advisor that knows your Brand Core and your ideas; works with voice and microphone |
 | **Idea Bank** («بانک ایده») | Save an idea as text, a link, a voice note or a file; get an analysis, web research, and a reel with six hooks, a caption and hashtags |
+| **Content Waterfall** («آبشار محتوا») | At the bottom of every idea: from that one idea, several reels with different angles, a carousel, stories, a post, a LinkedIn post, an X thread, a YouTube video outline and a newsletter. The carousel and stories open in their own editors, and Instagram pieces go into the calendar with one button |
+| **Content Calendar** («تقویم محتوا») | A weekly plan built from your content pillars and formats: set how many of each format you post a week and each pillar's share, and the week is laid out for you. It checks the plan's health, and Claude suggests a topic and hook for each slot. Exports to Google/Apple Calendar |
 | **YouTube Translations** («ترجمه‌های یوتیوب») | Full Persian translations of English videos for you to read, with the best parts sent to the Idea Bank |
 | **Reels Studio** («استودیو ریلز») | From a YouTube link to a reel idea and a script ready to record, with a teleprompter |
 | **Video Editing** («تدوین ویدیو») | Cuts silences and fumbles, adds word-by-word Persian captions, graphics, a cover and a caption (Mac only for now) |
 | **Story** («استوری») | Text → a 1080×1920 image in your brand colours and logo |
 | **Carousel & Post** («کاروسل و پست») | Multi-slide posts, made by hand or with Claude |
 | **Instagram Analytics** («تحلیل اینستاگرام») | Stats for your posts, reels, stories and audience, plus an AI analyst (optional; [how to connect](docs/instagram-connect.en.md)) |
+| **Monthly Review** («مرور ماهانه») | A 30-day scorecard (planned vs published, Instagram stats, LinkedIn, X and newsletter, ideas) and your quarterly targets. Claude says what worked and what didn't; the learnings you approve flow back into every part of the studio |
 | **Settings** («تنظیمات») | Your profile, the Claude model for each task, and your Gemini key |
 
 Publishing is manual: you download what the studio makes and post it on Instagram yourself.
+
+### English page (fa / EN toggle)
+
+If you also run an English page, click the **EN** toggle at the top of the page. From then on, everything new the studio writes (Idea Bank analysis and reels, Reels Studio, carousels, the Instagram analyst, the advisor's drafts, the content calendar) is written in natural English, with the same Brand Core and the same red lines. The studio's interface stays in Persian.
+
+- English stories and carousels are drawn left to right with English fonts. The **Aa** button next to the toggle picks the heading and body fonts (Montserrat, Playfair Display, Oswald, Fraunces, Space Grotesk, Inter).
+- Every carousel and reel keeps the language it was made in, and is rewritten in that same language later.
+- The Persian page and the English page have separate content calendars.
+- YouTube translations are always in Persian, and video editing is Persian-only for now.
 
 ## What you need
 
@@ -108,7 +122,7 @@ Then close the studio and open it again. Updating never touches your data.
 All your data lives inside the studio folder (`~/content-studio` on Mac, `C:\Users\<your name>\content-studio` on Windows):
 
 - `brand/`: your Brand Core, logo and images
-- `data/`: ideas, reels, advisor chats, carousels, stories, videos and Instagram stats
+- `data/`: ideas, reels, content waterfalls, the Experience Bank, Audience Voice (the text of your calls and messages), monthly reviews, advisor chats, carousels, stories, videos and Instagram stats
 - `modules/reels/output/`: translations and Reels Studio output
 - `.env`: your Gemini key and Instagram token (never send this file to anyone)
 
@@ -155,4 +169,4 @@ If you have changed the code, the update script may not be able to combine your 
 
 Claude keeps your changes and adds only what's new. If you'd rather not, you don't have to update at all; your own version keeps working as it is.
 
-The Vazirmatn font is licensed under the SIL Open Font License (`app/fonts/OFL.txt`).
+The Vazirmatn font is licensed under the SIL Open Font License (`app/fonts/OFL.txt`). The English fonts (Inter, Montserrat, Playfair Display, Oswald, Fraunces, Space Grotesk) are under the same licence (`app/fonts/en/OFL.txt`).
