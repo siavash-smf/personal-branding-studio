@@ -101,6 +101,7 @@ function go(sec) {
   ({ start:window.viewStart, settings:window.viewSettings,
      dashboard:viewDashboard, brand:window.viewBrand, translations:window.viewTranslations, ideas:viewIdeas, reels:viewReels,
      story:window.viewStory, advisor:window.viewAdvisor, analytics:window.viewInsta, carousel:window.viewCarousel,
+     planner:window.viewPlanner, experience:window.viewExperience, audience:window.viewAudience, review:window.viewReview,
      video: S.platform === 'mac' ? window.viewVideo : window.viewVideoMacOnly }[sec] || viewDashboard)();
 }
 
@@ -406,13 +407,14 @@ async function submitCapture() {
 
 function ideaHTML(i) {
   const src = i.source || {}, st = i.steps || {};
-  const srcLabel = i.audio ? 'ویس' : ({ youtube:'یوتیوب', website:'سایت', url:'لینک', file:'فایل', text:'متن', manual:'دستی', analyst:'تحلیلگر', advisor:'مشاور' }[src.kind] || 'دستی');
+  const srcLabel = i.audio ? 'ویس' : ({ youtube:'یوتیوب', website:'سایت', url:'لینک', file:'فایل', text:'متن', manual:'دستی', analyst:'تحلیلگر', advisor:'مشاور', experience:'بانک تجربه', audience:'صدای مخاطب' }[src.kind] || 'دستی');
   const done = stepsFor(i).filter(([k]) => st[k]).map(([,l]) => l);
   return `<article class="idea ${i.status==='done'?'done':''}">
     <div class="idea-main" data-id="${i.id}">
       <h4>${esc(i.title)}</h4>
       <div class="idea-meta">
         ${i.pillar?`<span class="pill">${esc(i.pillar)}</span>`:''}
+        ${i.lang==='en'?'<span class="pill" title="برای پیج انگلیسی">EN</span>':''}
         <span>${esc(srcLabel)}${src.at?' · '+esc(src.at):''}</span>
         ${i.created?`<span>${esc(i.created)}</span>`:''}
         ${done.length?`<span style="color:var(--up)">✓ ${done.join(' · ')}</span>`:''}
@@ -458,6 +460,7 @@ async function viewIdeaDetail() {
     </details>
     <div id="ideaJob" class="build-status" hidden></div>
     <div id="reelEd"></div>
+    <div id="wfBox"></div>
     ${box('research','یافته‌های وب')}
     ${box('analysis','تحلیل')}
     ${box('raw','ورودی خام')}
@@ -465,6 +468,7 @@ async function viewIdeaDetail() {
   showIdeaHead(it, f);
   if (window.mountCarouselIdea) mountCarouselIdea($('.detail-bar'), it);
   if (window.mountReelEditor) mountReelEditor($('#reelEd'), it, f);
+  if (window.mountWaterfall) mountWaterfall($('#wfBox'), it);   // آبشار محتوا (waterfall.js)
 
   $('#ideaBack').onclick = () => { S.openIdea = null; clearInterval(IPOLL); viewIdeas(); };
   $$('[data-step]').forEach(b => b.onclick = () => {

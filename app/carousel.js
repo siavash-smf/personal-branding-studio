@@ -43,6 +43,10 @@ const CR_PRESETS = [
     note: 'زمینه‌ی روشن، متن به رنگ برند، ماژیک' },
 ];
 // ** = تأکید
+const CR_DEMO_EN = { title: '5 mistakes that keep **your personal brand** invisible' };
+// زبان هر کاروسل موقع ساختش ثبت می‌شود (کلید فا/EN هدر) و همیشه با همان کشیده می‌شود
+const crEn = () => !!(CR.deck && CR.deck.lang === 'en');
+const crDirAttr = () => crEn() ? 'dir="ltr" spellcheck="true"' : 'dir="rtl" spellcheck="false"';
 const CR_DEMO = {
   title: '۵ اشتباهی که باعث می‌شه **برند شخصی‌ات** دیده نشه',
   body: 'اشتباه اول: برای **همه** محتوا می‌سازی، پس برای هیچ‌کس نمی‌سازی.',
@@ -177,8 +181,8 @@ function crChrome(ctx, s, i, n, lg, box) {
   }
   ctx.textBaseline = 'alphabetic';
   if (box.numOn) {
-    ctx.font = `700 30px ${ST_FONT}`; ctx.fillStyle = stAlpha(s.fg, 0.72); ctx.direction = 'rtl'; ctx.textAlign = 'left';
-    ctx.fillText(`${faNum(i + 1)} از ${faNum(n)}`, CR_EDGE, box.numAt === 'top' ? CR_EDGE + 30 : CRH - CR_EDGE);   // «۱ / ۴» در راست‌به‌چپ «۴ / ۱» دیده می‌شد
+    ctx.font = `700 30px ${ST_FONT}`; ctx.fillStyle = stAlpha(s.fg, 0.72); ctx.direction = ST_LTR ? 'ltr' : 'rtl'; ctx.textAlign = 'left';
+    ctx.fillText(ST_LTR ? `${i + 1} / ${n}` : `${faNum(i + 1)} از ${faNum(n)}`, CR_EDGE, box.numAt === 'top' ? CR_EDGE + 30 : CRH - CR_EDGE);   // «۱ / ۴» در راست‌به‌چپ «۴ / ۱» دیده می‌شد
   }
   if (box.handleOn) {
     ctx.font = `600 28px ${ST_FONT}`; ctx.fillStyle = stAlpha(s.fg, 0.72); ctx.direction = 'ltr'; ctx.textAlign = 'right';
@@ -217,6 +221,7 @@ function crBlocks(ctx, d, i, s, box) {
   const avail = box.bottom - box.top;
   const tBase = s.tSize * (i === 0 ? s.coverScale : 1), bBase = s.bSize;
   const tS = { ...s, weight: s.tWeight, lh: s.tLh, pgap: 0.55 }, bS = { ...s, weight: s.bWeight, lh: s.bLh };
+  if (ST_LTR) { tS.font = LANG.stack('head'); bS.font = LANG.stack('body'); }   // کاروسل انگلیسی: فونت تیتر و متن جدا
   const barH = s.deco === 'bar' && (hasT || hasB) ? 46 : 0;
   let k = 1, LT, LB, items, ih = 0, textH = 0, fits = true, gapTB = 0;
   for (;;) {
@@ -252,7 +257,7 @@ function crBlocks(ctx, d, i, s, box) {
   let y = s.valign === 'top' ? box.top : box.top + Math.max(0, (avail - total) / 2);
   if (barH) {
     ctx.fillStyle = s.decoColor; const w = 120;
-    stRR(ctx, s.align === 'center' ? box.x + (box.w - w) / 2 : box.x + box.w - w, y, w, 14, 7); ctx.fill();
+    stRR(ctx, s.align === 'center' ? box.x + (box.w - w) / 2 : ST_LTR ? box.x : box.x + box.w - w, y, w, 14, 7); ctx.fill();
     y += barH;
   }
   items.forEach((it, j) => {
@@ -272,7 +277,8 @@ function crDraw(ctx, d, i, n, s0) {
   crChrome(ctx, s, i, n, lg, box);
   return r;
 }
-function crPaint(cv, d, i, n, s, scale = 1) {
+function crPaint(cv, d, i, n, s, scale = 1, lang = CR.deck && CR.deck.lang) {
+  stDir(lang);
   const w = Math.round(CRW * scale), h = Math.round(CRH * scale);
   if (cv.width !== w) cv.width = w;
   if (cv.height !== h) cv.height = h;
@@ -281,7 +287,7 @@ function crPaint(cv, d, i, n, s, scale = 1) {
   ctx.clearRect(0, 0, CRW, CRH);
   return crDraw(ctx, d, i, n, s);
 }
-const crDemoData = () => ({ tF: stDemo(CR_DEMO.title), bF: [], img: null });
+const crDemoData = () => ({ tF: stDemo((crEn() ? CR_DEMO_EN : CR_DEMO).title), bF: [], img: null });
 
 /* ---------- صفحه‌ی اصلی: ساخت با هوش مصنوعی + فهرست کاروسل‌ها ---------- */
 async function viewCarousel() {
@@ -365,7 +371,7 @@ async function crLoadList() {
     const pub = d.published && d.published[0];
     return `<article class="cr-deck" data-crdeck="${esc(d.id)}">
       <canvas data-crc="${esc(d.id)}"></canvas>
-      <div class="cr-dmeta"><b>${esc(d.title)}</b>
+      <div class="cr-dmeta"><b>${d.lang === 'en' ? '<span class="cr-tag">EN</span> ' : ''}${esc(d.title)}</b>
         <span>${faNum(d.n)} اسلاید، ${esc(faNum((d.updated || '').slice(0, 16)))}</span>
         ${d.generating ? '<span class="cr-tag run">در حال ساخت…</span>' : d.error ? '<span class="cr-tag err">ساخت ناتمام ماند</span>' : ''}
         ${pub ? `<a class="cr-tag ok" href="${esc(pub.permalink || '#')}" target="_blank" rel="noopener" data-stop>منتشر شد ↗</a>` : ''}</div>
@@ -376,7 +382,7 @@ async function crLoadList() {
   for (const cv of $$('canvas[data-crc]', box)) {
     const d = decks.find(x => x.id === cv.dataset.crc);
     const data = d.cover && (d.cover.title || d.cover.body || d.cover.img) ? crData(d.cover) : crDemoData();
-    crPaint(cv, data, 0, Math.max(d.n, 1), { ...CR_BASE, ...(d.style || CR.saved || {}) }, 0.25);
+    crPaint(cv, data, 0, Math.max(d.n, 1), { ...CR_BASE, ...(d.style || CR.saved || {}) }, 0.25, d.lang);
   }
   if (decks.some(d => d.generating)) CR.listPoll = setTimeout(crLoadList, 3000);
 }
@@ -430,7 +436,7 @@ function crEditor() {
           <p class="st-hint">بخشی از متن را انتخاب کن: «تأکید» یا <kbd>⌘B</kbd> رنگی‌اش می‌کند؛ «بزرگ‌تر» و «کوچک‌تر» (<kbd>⌘⇧.</kbd> و <kbd>⌘⇧,</kbd>) اندازه‌اش را پله‌پله عوض می‌کنند · اسلاید اول کاور است و تیترش درشت‌تر کشیده می‌شود · اگر متن جا نشود همه‌چیز با هم کوچک می‌شود · متنی که بچسبانی و خطی با فقط «---» داشته باشد، خودش به چند اسلاید تقسیم می‌شود</p>
           <section class="panel cr-cap">
             <div class="cr-caphead"><h3>کپشن و هشتگ‌ها</h3><span class="st-grow"></span><span id="crCapCount" class="cr-dim"></span></div>
-            <textarea id="crCaption" class="cap-text" dir="rtl" placeholder="کپشن پست؛ خط اولش همان چیزی است که قبل از «بیشتر» دیده می‌شود…">${esc(d.caption || '')}</textarea>
+            <textarea id="crCaption" class="cap-text${crEn() ? ' en' : ''}" ${crDirAttr()} placeholder="کپشن پست؛ خط اولش همان چیزی است که قبل از «بیشتر» دیده می‌شود…">${esc(d.caption || '')}</textarea>
             <input id="crTags" class="cap-input" dir="auto" value="${esc(d.hashtags || '')}" placeholder="#هشتگ‌ها با فاصله از هم">
             <div class="cr-regen">
               <input id="crCapNote" class="cap-input" placeholder="نظرت برای بازنویسی کپشن و هشتگ‌ها (اختیاری)…">
@@ -469,9 +475,9 @@ function crCard(sl) {
         <button class="st-tool st-del" data-crs="del" title="حذف این اسلاید">✕</button>
       </div>
       <span class="cr-lab">تیتر</span>
-      <div class="st-ed cr-t" contenteditable="true" dir="rtl" spellcheck="false" data-ph="تیتر این اسلاید…"></div>
+      <div class="st-ed cr-t${crEn() ? ' en' : ''}" contenteditable="true" ${crDirAttr()} data-ph="${crEn() ? 'Slide headline…' : 'تیتر این اسلاید…'}"></div>
       <span class="cr-lab">متن</span>
-      <div class="st-ed cr-b" contenteditable="true" dir="rtl" spellcheck="false" data-ph="متن این اسلاید (اختیاری)…"></div>
+      <div class="st-ed cr-b${crEn() ? ' en' : ''}" contenteditable="true" ${crDirAttr()} data-ph="${crEn() ? 'Slide text (optional)…' : 'متن این اسلاید (اختیاری)…'}"></div>
       <div class="cr-imgrow"></div>
       <div class="cr-regen">
         <input class="cap-input cr-note" placeholder="نظرت برای بازنویسی همین اسلاید (اختیاری)…">

@@ -1,0 +1,50 @@
+/* ================= صدای مخاطب (audience.js) =================
+   رنگ هر نوع بینش فقط یک نوار باریک کنار کارت است؛ بقیه از style.css می‌آید. */
+.au-add, .au-sources{margin-bottom:20px}
+.au-lead{margin:0 0 6px; font-size:14px; color:var(--dim)}
+.au-privacy{border-top:1px solid var(--line); padding-top:10px; margin-top:14px}
+.au-ch{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--dim)}
+.au-ch select, .au-sources select{background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:10px; padding:8px 12px; font-size:14px}
+.au-title{max-width:260px}
+
+.au-shead{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.au-toggle{background:none; border:0; color:var(--fg); font-family:var(--display); font-weight:700; font-size:16px; cursor:pointer; padding:0}
+.au-q{font-size:12.5px; color:var(--dim)}
+.au-sources .build-status{margin-top:12px}
+#auSrc{margin-top:14px; display:flex; flex-direction:column; gap:8px}
+.au-src{display:flex; align-items:flex-start; gap:10px; background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:9px 12px}
+.au-src .del{background:none; border:none; color:var(--dim2); cursor:pointer; font-size:14px; padding:2px 5px}
+.au-src .del:hover{color:var(--accent2)}
+.au-k{font-size:16px; line-height:1.6}
+.au-sm{flex:1; min-width:0; display:flex; flex-direction:column}
+.au-sm b{font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.au-sm span{font-size:12px; color:var(--dim2)}
+.au-sm .au-err{color:var(--danger-text)}
+.au-stext{margin-top:8px; font-size:13px; color:var(--dim); white-space:pre-wrap; max-height:320px; overflow:auto;
+  background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px}
+.au-st{font-size:12px; color:var(--dim2); white-space:nowrap; display:flex; align-items:center; gap:6px}
+.au-src.ready .au-st{color:var(--accent2)}
+.au-src.error .au-st{color:var(--danger-text)}
+
+.au-ins{--t:var(--accent); display:flex; gap:14px; align-items:flex-start; background:var(--panel); border:1px solid var(--line);
+  border-inline-start:3px solid var(--t); border-radius:12px; padding:14px 16px; margin-bottom:10px}
+.au-ins.t-pain{--t:#ff8fa3} .au-ins.t-desire{--t:#9be7a8} .au-ins.t-question{--t:#87cefa}
+.au-ins.t-objection{--t:#ffdb58} .au-ins.t-praise{--t:#c3a6ff}
+.au-n{flex:none; width:52px; text-align:center; font-family:var(--display); font-weight:800; font-size:22px; color:var(--t); line-height:1.3}
+.au-n small{display:block; font-size:11px; font-weight:400; color:var(--dim2); font-family:var(--font)}
+.au-body{flex:1; min-width:0}
+.au-body h4{margin:0 0 8px; font-size:15.5px; font-weight:600; font-family:var(--font); line-height:1.7}
+.au-quotes{display:flex; flex-direction:column; gap:4px; margin-bottom:9px}
+.au-quotes q{font-size:13.5px; color:var(--dim); quotes:"«" "»"; padding-inline-start:10px; border-inline-start:2px solid var(--line)}
+.au-more{align-self:flex-start; background:none; border:0; color:var(--accent2); font-size:12.5px; cursor:pointer; padding:0; font-family:inherit}
+.au-ans{margin:0 0 9px; font-size:13.5px; color:var(--fg)}
+.au-answer{margin-bottom:10px}
+.au-answer .cap-text{min-height:80px}
+.au-act{display:flex; flex-direction:column; gap:6px; align-items:stretch}
+.au-act .btn{font-size:13px; padding:6px 12px; white-space:nowrap}
+.au-act .del{background:none; border:none; color:var(--dim2); cursor:pointer; font-size:15px; align-self:flex-end}
+.au-act .del:hover{color:var(--danger-text)}
+@media (max-width:640px){
+  .au-ins{flex-wrap:wrap}
+  .au-act{flex-direction:row; flex-wrap:wrap; width:100%}
+}

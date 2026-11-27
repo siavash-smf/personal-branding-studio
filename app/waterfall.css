@@ -1,0 +1,41 @@
+/* ================= آبشار محتوا (waterfall.js) — داخل صفحه‌ی ایده ================= */
+.wf{margin-bottom:16px}
+.wf-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:6px}
+.wf-head h3{margin:0}
+.wf-sub{font-size:12.5px; color:var(--dim2)}
+.wf-head .btn{font-size:13px; padding:6px 12px}
+.wf-lead{margin:6px 0 12px; font-size:14px; color:var(--dim)}
+.wf-opts{border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:8px}
+.wf-checks{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:8px}
+.wf-check{display:flex; align-items:center; gap:9px; background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:9px 12px; cursor:pointer}
+.wf-check span{flex:1; display:flex; flex-direction:column; font-size:14px; line-height:1.5}
+.wf-check small{font-size:11.5px; color:var(--dim2)}
+.wf-check select{background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:3px 6px; font-size:13px}
+.wf-group{margin-top:18px}
+.wf-group h4{margin:0 0 10px; font-size:14px; color:var(--accent2); font-family:var(--display); font-weight:700}
+.wf-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:12px}
+.wf-card{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; min-width:0}
+.wf-card.done{opacity:.6}
+.wf-chead{display:flex; align-items:center; gap:8px}
+.wf-chead b{font-size:14px}
+.wf-chead .del{background:none; border:none; color:var(--dim2); cursor:pointer; font-size:14px; padding:2px 5px}
+.wf-chead .del:hover{color:var(--accent2)}
+.wf-done{font-size:12px; color:var(--up)}
+.wf-in{font-size:12px; color:var(--accent2)}
+.wf-body{font-size:13.5px; color:var(--dim); max-height:340px; overflow:auto; line-height:1.9}
+.wf-body .hook{margin:6px 0}
+.wf-t{display:block; color:var(--fg); margin-bottom:4px}
+.wf-p{margin:6px 0; white-space:pre-line}
+.wf-meta{margin:6px 0; font-size:12.5px; color:var(--dim2)}
+.wf-slides, .wf-titles{margin:4px 0; padding-inline-start:20px}
+.wf-slides li, .wf-titles li{margin-bottom:4px}
+.wf-x small{display:block; font-size:11px; color:var(--dim2)}
+.wf-md{font-size:13.5px; max-width:none}
+.wf-body details summary{cursor:pointer; color:var(--accent2); font-size:12.5px}
+.wf-edit{display:flex; flex-direction:column; gap:8px}
+.wf-edit label{display:flex; flex-direction:column; gap:5px; font-size:12.5px; color:var(--dim)}
+.wf-edit .cap-text{min-height:70px; font-size:14px}
+.wf-foot{display:flex; align-items:center; gap:8px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:8px}
+.wf-foot .btn{font-size:12.5px; padding:5px 10px}
+.wf-date{background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:4px 8px; font-size:12.5px; color-scheme:dark}
+@media (max-width:640px){ .wf-grid{grid-template-columns:1fr} }

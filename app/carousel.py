@@ -14,6 +14,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 import settings as cfg
 import ai_models as am
+import lang as lg
+import knowledge as kn
 
 APP = Path(__file__).resolve().parent
 ROOT = APP.parent
@@ -172,7 +174,8 @@ def create(title="", source=None, slides=None):
     did = "c" + time.strftime("%Y%m%d-%H%M%S") + "-" + secrets.token_hex(2)
     deck = {"id": did, "v": 1, "title": title, "created": now(), "source": source or {"kind": "manual"},
             "slides": slides if slides is not None else [new_slide()], "caption": "", "hashtags": "",
-            "style": saved_style(), "note": "", "published": [], "pending": None, "prevCaption": None}
+            "style": saved_style(), "note": "", "published": [], "pending": None, "prevCaption": None,
+            "lang": lg.current()}   # زبان محتوای کاروسل (کلید فا/EN)؛ بازنویسی‌ها هم به همین زبان‌اند
     with LOCK:
         _write(deck)
     return deck
@@ -264,7 +267,7 @@ def summary(d):
             "updated": d.get("updated"), "created": d.get("created"), "n": len(d.get("slides") or []),
             "published": (d.get("published") or [])[-1:] or None, "source": d.get("source"),
             "generating": gen.get("state") == "running", "error": gen.get("error") if gen.get("state") == "error" else "",
-            "cover": cover, "style": d.get("style")}
+            "cover": cover, "style": d.get("style"), "lang": d.get("lang") or "fa"}
 
 
 def list_decks():
@@ -294,7 +297,7 @@ def duplicate(did):
     c = create(title=(d.get("title") or "کاروسل") + " (کپی)", source={"kind": "copy", "from": did}, slides=slides)
     with LOCK:
         c = load(c["id"])
-        c.update(caption=d.get("caption", ""), hashtags=d.get("hashtags", ""), style=d.get("style"))
+        c.update(caption=d.get("caption", ""), hashtags=d.get("hashtags", ""), style=d.get("style"), lang=d.get("lang") or "fa")
         _write(c)
     return 200, {"ok": True, "deck": c}
 
@@ -342,9 +345,10 @@ def claude_bin():
     return cfg.claude_bin()
 
 
-def ask(prompt, timeout, web=False, effort=None):
-    """claude -p بیرون از پوشه‌ی استودیو (CLAUDE.md و حافظه قاطی نشوند)؛ پرامپت از stdin."""
-    cmd = [claude_bin(), "-p", "--output-format", "json", "--model", am.get("carousel"), "--no-session-persistence", "--safe-mode"]
+def ask(prompt, timeout, web=False, effort=None, lang="fa"):
+    """claude -p بیرون از پوشه‌ی استودیو (CLAUDE.md و حافظه قاطی نشوند)؛ پرامپت از stdin. lang = زبان خود کاروسل."""
+    cmd = [claude_bin(), "-p", "--output-format", "json", "--model", am.get("carousel"), "--no-session-persistence", "--safe-mode",
+           *lg.claude_args(lang)]
     cmd += ["--tools", "WebSearch,WebFetch", "--allowedTools", "WebSearch", "WebFetch"] if web else ["--tools", ""]
     if effort:
         cmd += ["--effort", effort]
@@ -449,7 +453,7 @@ OUT>>>
 
 
 def brand_text():
-    return read_text(BRAND_MD) or "(هسته‌ی برند خالی است)"
+    return kn.brand_plus(read_text(BRAND_MD) or "(هسته‌ی برند خالی است)")   # + بانک تجربه، صدای مخاطب، یادگیری‌ها
 
 
 def idea_record(iid):
@@ -550,7 +554,7 @@ def run_generate(did, opts):
     key = f"{did}:gen"
     try:
         jset(key, step="Claude دارد متن اسلایدها را می‌نویسد… (معمولاً ۱ تا ۳ دقیقه)")
-        code, res, err = ask(gen_prompt(opts), 2400, web=opts["web"], effort="high")
+        code, res, err = ask(gen_prompt(opts), 2400, web=opts["web"], effort="high", lang=(load(did) or {}).get("lang") or "fa")
         data = json_block(res, "<<<CAROUSEL", "CAROUSEL>>>") if res else None
         slides = [x for x in (data or {}).get("slides") or [] if isinstance(x, dict)]
         if code != 0 or not slides:
@@ -615,7 +619,7 @@ def run_regen(did, target, sid, note):
                   .replace("__TASK__", task).replace("__NOTE__", note_block).replace("__RULES__", rules)
                   .replace("__SHAPE__", shape))
         jset(key, step="Claude دارد بازنویسی می‌کند…")
-        code, res, err = ask(prompt, 1500, web=True)
+        code, res, err = ask(prompt, 1500, web=True, lang=deck.get("lang") or "fa")
         data = json_block(res, "<<<OUT", "OUT>>>") if res else None
         ok = data and (str(data.get("title") or data.get("body") or "").strip() if target == "slide"
                        else str(data.get("caption") or "").strip())
